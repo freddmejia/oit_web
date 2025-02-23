@@ -7,7 +7,7 @@ const MQTTComponent = ({ setForceValue, setWeightValue, setTimeValue }) => {
     const MQTT_USER = "bos_us23"
     const MQTT_PASSWORD="rootpass798"
 
-    const timeoutDuration = 5000;
+    const timeoutDuration = 3000;
     let timeoutRef = null;
 
     const connectionParams = {
@@ -49,15 +49,15 @@ const MQTTComponent = ({ setForceValue, setWeightValue, setTimeValue }) => {
 
                 if (timeoutRef) clearTimeout(timeoutRef);
                 timeoutRef = setTimeout(() => {
-                    setForceValue(0);
-                    setWeightValue(0);
-                    setTimeValue(0);
+                    setForceValue(-1);
+                    setWeightValue(-1);
+                    setTimeValue(-1);
                 }, timeoutDuration);
 
             } catch (error) {
-                setForceValue(0);
-                setWeightValue(0);
-                setTimeValue(0);
+                setForceValue(-1);
+                setWeightValue(-1);
+                setTimeValue(-1);
             }
 
         });

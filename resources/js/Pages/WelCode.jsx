@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { RadialBarChart, RadialBar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { RadialBarChart, RadialBar, LabelList, LineChart, Label, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 import HelpDashboardModal from "../Components/modals/HelpDashboardModal";
 
@@ -38,20 +38,22 @@ const Welcome = () => {
     const [forceN, setForceN] = useState(200);
     const [data, setData] = useState([]);
     const [statusSensor, setStatusSensor] = useState("Offline");
-    const [forceValue, setForceValue] = useState("0");
-    const [weightValue, setWeightValue] = useState("0");
+    const [forceValue, setForceValue] = useState("-1");
+    const [weightValue, setWeightValue] = useState("-1");
     const [timeValue, setTimeValue] = useState(new Date().toLocaleTimeString());
-    const [weightList, setWeightList] = useState([]); 
+    const [weightList, setWeightList] = useState([
+        
+    ]); 
 
     const [selectedGroup, setSelectedGroup] = useState("Babies");
     const maxValues = {
         Babies: { kg: 5, N: 50 },
-        Children: { kg: 20, N: 200 },
+        Kids: { kg: 20, N: 200 },
         Adults: { kg: 60, N: 600 },
     };
 
     useEffect(() => {
-        if (forceValue != 0) {
+        if (forceValue != -1 && weightValue != -1) {
             setTimeValue(timeValue);
             setForceKg(weightValue);
             setForceN(forceValue);
@@ -59,9 +61,9 @@ const Welcome = () => {
 
             const newEntry = {
                 time: new Date(timeValue).toLocaleTimeString(),
-                weight: weightValue, 
+                strength: forceValue, 
             };
-            
+            console.log("New entry: " + newEntry.time + " " + newEntry.strength);
             setWeightList((prevList) => {
                 const updatedList = [...prevList, newEntry]; 
                 return updatedList.slice(-10);
@@ -109,7 +111,7 @@ const Welcome = () => {
                             onChange={(e) => setSelectedGroup(e.target.value)}
                         >                            
                             <option>Babies</option>
-                            <option>Children</option>
+                            <option>Kids</option>
                             <option>Adults</option>
                         </select>
                         <HelpDashboardModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
@@ -135,17 +137,41 @@ const Welcome = () => {
 
                     <ResponsiveContainer width="100%" height={200}>
                         <LineChart data={weightList}>
-                            <XAxis dataKey="time" />
-                            <YAxis domain={[0, 60]} />
-                            <Tooltip />
+                            <XAxis dataKey="time" >
+                                <Label 
+                                    value="Time (hh:mm:ss)" 
+                                    offset={-5} 
+                                    position="insideBottom" 
+                                    style={{ fill: "#666", fontSize: "14px" }} 
+                                />
+                            </XAxis>
+                            <YAxis domain={[0, maxValues[selectedGroup].N]} >
+                                <Label 
+                                    value="Strength (N)" 
+                                    angle={-90} 
+                                    position="insideLeft" 
+                                    style={{ fill: "#666", fontSize: "14px" }} 
+                                />
+                            </YAxis>
+                            <Tooltip
+                                wrapperStyle={{ backgroundColor: "#fff", borderRadius: "8px", padding: "6px", border: "1px solid #ddd" }}
+                                cursor={{ strokeDasharray: "3 3" }} 
+                                formatter={(value, name) => [`${value} N`, "Strength"]}
+                                labelFormatter={(label) => `Time: ${label}`}
+                            />
                             <Line 
                                 type="monotone" 
-                                dataKey="weight" 
+                                dataKey="strength" 
                                 stroke="#8884d8" 
                                 strokeWidth={4} 
-                                dot={false} 
+                                dot={{ r: 6, strokeWidth: 2 }}
+                                activeDot={{ r: 8 }}
+                                isAnimationActive={false}
                                 animationDuration={500}
-                                />
+                                >
+                                <LabelList dataKey="strength" position="bottom" style={{ fill: "#444", fontSize: "16px", fontWeight: "bold" }} />
+
+                            </Line>
                         </LineChart>
                     </ResponsiveContainer>
 
